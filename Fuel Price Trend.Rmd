@@ -1,0 +1,26 @@
+---
+title: "Fuel Price in WA"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+```{r}
+Files <- dir(path = ".", pattern = "\\.csv$", full.names = F, recursive = TRUE)
+Fuel_Data <- do.call(rbind,lapply(Files,read.csv))
+```
+
+```{r}
+ULP <- Fuel_Data %>% filter(PRODUCT_DESCRIPTION == 'ULP') %>%
+  mutate(PUBLISH_DATE = as_date(PUBLISH_DATE,format = "%d/%m/%Y")) %>% 
+  group_by(PUBLISH_DATE,BRAND_DESCRIPTION) %>% 
+  summarise(PRICE = mean(PRODUCT_PRICE)) %>% 
+  ungroup()
+```
+```{r}
+ggplot(ULP,aes(PUBLISH_DATE,PRICE,color=BRAND_DESCRIPTION)) + geom_line() + theme_minimal()
+```
+
